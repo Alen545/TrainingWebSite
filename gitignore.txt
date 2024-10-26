@@ -1,0 +1,30 @@
+# Ignore for Django Backend
+BACKEND/myenv/
+BACKEND/Trainingwebsite/__pycache__/
+BACKEND/Trainingwebsite/db.sqlite3
+*.pyc
+*.log
+
+# Ignore for Python environment files
+*.env
+*.env.local
+*.sqlite3
+
+# Django migrations
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Ignore for React Frontend
+FRONTEND/Online Training Website/node_modules/
+FRONTEND/Online Training Website/build/
+FRONTEND/Online Training Website/dist/
+
+# Ignore for build output
+build/
+dist/
+
+# macOS-specific
+.DS_Store
+
+# Windows-specific
+Thumbs.db
