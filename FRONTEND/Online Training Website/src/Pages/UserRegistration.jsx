@@ -74,7 +74,7 @@ function UserRegistration() {
     });
 
     try {
-      const response = await Axios.post("Account/RegisterUser/", formData, {
+      const response = await Axios.post("Account/registerUser/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

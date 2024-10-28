@@ -6,6 +6,8 @@ from .models import USER
 from .serializers import UserRegistrationSerializer
 import random
 import string
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 
 def generate_random_username():
     characters = string.ascii_letters + string.digits + "!@#$%^&*"
@@ -56,7 +58,8 @@ class UserRegister(APIView):
                 profile_img = request.FILES.get('profileImage'),
             )
             print("User",user)
-            user.set_password(password)  
+            user.set_password(password) 
+            user.is_activate = False 
             user.save()
 
             send_mail(
@@ -66,6 +69,34 @@ class UserRegister(APIView):
                 [data['email']],
                 fail_silently=False,
             )
-            return Response({"message": "User registered successfully. Check your email for credentials."}, status=status.HTTP_201_CREATED)
+            return Response({
+                "message": "User registered successfully. Check your email for credentials.",
+                },status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserLogin(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if not username or not password:
+            return Response(
+                {"error": "Username and password are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            # Generate JWT token
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"error": "Invalid username or password."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
