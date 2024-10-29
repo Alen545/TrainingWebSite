@@ -1,13 +1,14 @@
+import random
+import string
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.core.mail import send_mail
-from .models import USER
-from .serializers import UserRegistrationSerializer
-import random
-import string
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
+from .serializers import UserRegistrationSerializer
+from .models import USER
 
 def generate_random_username():
     characters = string.ascii_letters + string.digits + "!@#$%^&*"
@@ -21,7 +22,7 @@ def generate_random_password():
 
 class UserRegister(APIView):
     def post(self, request):
-        
+
         # Validate email
         email = request.data.get('email')
         if not email or "@" not in email or not email.endswith(".com"):
@@ -38,30 +39,28 @@ class UserRegister(APIView):
         if USER.objects.filter(phone=phone_number).exists():  
             return Response({"phoneNumber": "Phone number already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = UserRegistrationSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            data = serializer.validated_data
-            
-            username = generate_random_username()  
-            password = generate_random_password()
+        data=request.data
 
-            user = USER.objects.create(
-                username=username,
-                first_name=data.get('firstName'),  
-                last_name=data.get('lastName'),
-                email=data.get('email'),
-                qualification=data.get('qualification'),
-                phone=data.get('phoneNumber'),
-                passout_year=data.get('passoutYear'),
-                gender=data.get('gender'),
-                profile_img = request.FILES.get('profileImage'),
-            )
-            print("User",user)
-            user.set_password(password) 
-            user.is_activate = False 
+        username = generate_random_username()  
+        password = generate_random_password()
+
+        # Data store in db
+        user = USER.objects.create_user(
+            username=username,
+            first_name=data.get('firstName'),  
+            last_name=data.get('lastName'),
+            email=data.get('email'),
+            qualification=data.get('qualification'),
+            phone=data.get('phoneNumber'),
+            passout_year=data.get('passoutYear'),
+            gender=data.get('gender'),
+            profile_img = request.FILES.get('profileImage'),
+            password=password,
+            is_active = False 
+        )
+        if user:
+
             user.save()
-
             send_mail(
                 "Welcome to Alen's Group",
                 f'Your account has been created successfully. Your username is {username} and your password is {password}. Admin approval shortly.',
@@ -73,7 +72,7 @@ class UserRegister(APIView):
                 "message": "User registered successfully. Check your email for credentials.",
                 },status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"Error":"User registered not successfully"}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserLogin(APIView):
     def post(self, request):
@@ -100,3 +99,19 @@ class UserLogin(APIView):
                 {"error": "Invalid username or password."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+
+class GetUserData(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        users = USER.objects.filter(is_staff = False)
+        
+        user_data = []
+        for user in users:
+            user_data.append({
+                'name' : f'{user.first_name} {user.last_name}',
+                'email' : user.email,
+                'phone' : user.phone,
+                'profileImage' : request.build_absolute_uri(user.profile_img.url) if user.profile_img else None
+            })
+        return Response(user_data)

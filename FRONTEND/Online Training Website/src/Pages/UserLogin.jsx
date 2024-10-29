@@ -30,10 +30,15 @@ function UserLogin() {
     try {
       const response = await Axios.post("Account/loginUser/", credentials);
       if (response.status === 200) {
-        const token = response.data.access;
+        const { access: token } = response.data;
         Cookies.set("authToken", token);
         toast.success("Login successful!");
-        navigate("/adminHomePage");
+
+        if (credentials.username === "admin") {
+          navigate("/adminHomePage");
+        } else {
+          navigate("/userHomePage");
+        }
       }
     } catch (error) {
       toast.error("Login failed. Please check your credentials.");
