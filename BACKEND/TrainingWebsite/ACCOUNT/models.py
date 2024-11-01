@@ -12,3 +12,4 @@ class USER(AbstractUser):
         blank=True
     )
     profile_img = models.ImageField(upload_to='profileImages/', null=True, blank=True)
+    is_active = models.BooleanField(default=False)

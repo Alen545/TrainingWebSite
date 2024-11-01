@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import AdminSideBar from "./AdminSideBar";
 import Axios from "../../Axios";
 import Cookies from "js-cookie";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function UserRequest() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,8 +33,39 @@ function UserRequest() {
     fetchUserRequest();
   }, [token]);
 
-  const handleAccept = (userId) => {
-    setAcceptedUsers((prev) => new Set(prev).add(userId));
+  const handleUserAction = async (userId, action) => {
+    try {
+      const response = await Axios.post(
+        `Account/manageUserRequest/${userId}/${action}/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (action === "accept") {
+          setAcceptedUsers((prev) => new Set(prev).add(userId));
+          toast.success("User accepted successfully!");
+        }
+        if (action === "decline") {
+          setUserData((prevData) =>
+            prevData.filter((user) => user.id !== userId)
+          );
+        } else {
+          setUserData((prevData) =>
+            prevData.map((user) => {
+              return user.id === userId ? { ...user, accepted: true } : user;
+            })
+          );
+        }
+      }
+    } catch (error) {
+      console.log(`Error on ${action}`, error);
+      toast.error(`Error on ${action} user`);
+    }
   };
 
   return (
@@ -55,7 +88,7 @@ function UserRequest() {
       <div className="flex-1 p-4">
         <h1 className="text-2xl font-semibold mb-4">User Requests</h1>
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-300">
+          <table className="min-w-full bg-white border border-gray-300 rounded-lg">
             <thead>
               <tr>
                 <th className="p-4 border-b">Profile Image</th>
@@ -67,7 +100,12 @@ function UserRequest() {
             </thead>
             <tbody>
               {userData.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-100">
+                <tr
+                  key={user.id}
+                  className={`hover:bg-gray-100 ${
+                    acceptedUsers.has(user.id) ? "bg-gray-400" : "bg-white"
+                  }`}
+                >
                   <td className="p-4 border-b text-center">
                     <img
                       src={user.profileImage}
@@ -79,18 +117,19 @@ function UserRequest() {
                   <td className="p-4 border-b text-center">{user.email}</td>
                   <td className="p-4 border-b text-center">{user.phone}</td>
                   <td className="p-4 border-b text-center space-x-2">
-                    {acceptedUsers.has(user.id) ? (
-                      <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                        Accepted
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleAccept(user.id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                      >
-                        Decline
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleUserAction(user.id, "accept")}
+                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    >
+                      Accept
+                    </button>
+
+                    <button
+                      onClick={() => handleUserAction(user.id, "decline")}
+                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    >
+                      Decline
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -98,6 +137,7 @@ function UserRequest() {
           </table>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

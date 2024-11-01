@@ -109,9 +109,47 @@ class GetUserData(APIView):
         user_data = []
         for user in users:
             user_data.append({
+                'id' : user.id,
                 'name' : f'{user.first_name} {user.last_name}',
                 'email' : user.email,
                 'phone' : user.phone,
                 'profileImage' : request.build_absolute_uri(user.profile_img.url) if user.profile_img else None
             })
         return Response(user_data)
+
+#Accept/Decline User
+class UserActionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id, action):
+        try:
+            user = USER.objects.get(id=user_id)
+            if action == "accept":
+                user.is_active = True
+                user.save()
+                # Send welcome email
+                send_mail(
+                    'Welcome!',
+                    'Your account is now active. Welcome!',
+                    'admin@yourdomain.com',
+                    [user.email],
+                    fail_silently=False,
+                )
+                return Response({'message': 'User accepted and email sent.'}, status=status.HTTP_200_OK)
+
+            elif action == "decline":
+                # Send decline email before deleting user
+                send_mail(
+                    'Account Declined',
+                    'Sorry, your account has been declined.',
+                    'admin@yourdomain.com',
+                    [user.email],
+                    fail_silently=False,
+                )
+                user.delete()
+                return Response({'message': 'User declined and email sent.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except USER.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
