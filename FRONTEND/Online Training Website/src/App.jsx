@@ -6,6 +6,7 @@ import "./App.css";
 
 import AdminHomePage from "./Components/Admin/AdminHomePage";
 import AddCourse from "./Components/Admin/AddCourse";
+import ViewCourse from "./Components/Admin/ViewCourse";
 import UserRequest from "./Components/Admin/UserRequest";
 import UserHomePage from "./Components/User/UserHomePage";
 function App() {
@@ -19,6 +20,7 @@ function App() {
 
           <Route path="/adminHomePage" element={<AdminHomePage />} />
           <Route path="/addCourse" element={<AddCourse />} />
+          <Route path='/viewCourse' element={<ViewCourse/>}/>
           <Route path="/userRequest" element={<UserRequest />} />
           <Route path="/userHomePage" element={<UserHomePage />} />
         </Routes>
