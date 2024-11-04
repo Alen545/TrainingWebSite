@@ -11,8 +11,19 @@ class CourseListView(APIView):
 
     def get(self, request):
         courses = COURSE.objects.all()
-        serializer = CourseSerializer(courses, many=True)
-        return Response(serializer.data)
+        course_data = []
+        for course in courses:
+            course_data.append({
+                'id': course.id,
+                'title': course.title,
+                'description': course.description,
+                'duration': course.duration,
+                'price': course.price,
+                'course_photo': request.build_absolute_uri(course.course_photo.url) if course.course_photo else None,
+                'trial_video': request.build_absolute_uri(course.trial_video.url) if course.trial_video else None
+            })
+
+        return Response(course_data)
 
     def post(self, request):
         serializer = CourseSerializer(data=request.data)

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AdminSideBar from "./AdminSideBar";
+import { Sling as Hamburger } from "hamburger-react";
 import Axios from "../../Axios";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 function AddCourse() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     courseName: "",
     description: "",
@@ -70,12 +72,13 @@ function AddCourse() {
 
   return (
     <div className="flex min-h-screen">
-      <button
-        className="fixed top-0 left-4 z-50 md:hidden bg-gray-800 text-white p-2 rounded"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        {isSidebarOpen ? "Close Menu" : "Open Menu"}
-      </button>
+      <div className="fixed top-4 left-4 z-50 md:hidden">
+        <Hamburger
+          toggled={isSidebarOpen}
+          toggle={setIsSidebarOpen}
+          color="#000000"
+        />
+      </div>
 
       <div
         className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white transform ${

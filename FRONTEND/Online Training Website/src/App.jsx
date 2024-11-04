@@ -8,7 +8,10 @@ import AdminHomePage from "./Components/Admin/AdminHomePage";
 import AddCourse from "./Components/Admin/AddCourse";
 import ViewCourse from "./Components/Admin/ViewCourse";
 import UserRequest from "./Components/Admin/UserRequest";
+import CourseEdit from "./Components/Admin/CourseEdit";
+
 import UserHomePage from "./Components/User/UserHomePage";
+
 function App() {
   return (
     <>
@@ -20,9 +23,10 @@ function App() {
 
           <Route path="/adminHomePage" element={<AdminHomePage />} />
           <Route path="/addCourse" element={<AddCourse />} />
-          <Route path='/viewCourse' element={<ViewCourse/>}/>
+          <Route path="/viewCourse" element={<ViewCourse />} />
           <Route path="/userRequest" element={<UserRequest />} />
           <Route path="/userHomePage" element={<UserHomePage />} />
+          <Route path="/courseEdit/:courseId/" element={<CourseEdit />} />
         </Routes>
       </BrowserRouter>
     </>
