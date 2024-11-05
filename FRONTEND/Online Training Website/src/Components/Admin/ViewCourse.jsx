@@ -50,7 +50,7 @@ function ViewCourse() {
 
   return (
     <div className="flex min-h-screen">
-      <div className="fixed top-4 left-4 z-50 md:hidden">
+      <div className="left-4 z-50 md:hidden">
         <Hamburger
           toggled={isSidebarOpen}
           toggle={setIsSidebarOpen}
@@ -100,9 +100,9 @@ function ViewCourse() {
                     )}
                   </td>
                   <td className="px-4 py-2 border">
-                    {course.trial_video ? (
+                    {course.trial_videos ? (
                       <a
-                        href={course.trial_video}
+                        href={course.trial_videos}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 underline"

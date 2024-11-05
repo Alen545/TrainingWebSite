@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .models import COURSE
-from .serializers import CourseSerializer
+from .models import COURSE, TRIALVIDEO
+from .serializers import CourseSerializer, CourseSerializer
 
 # List all courses or create a new course
 class CourseListView(APIView):
@@ -12,7 +12,13 @@ class CourseListView(APIView):
     def get(self, request):
         courses = COURSE.objects.all()
         course_data = []
+
         for course in courses:
+            trial_videos = [
+                request.build_absolute_uri(trial_video.video.url) 
+                for trial_video in course.trial_videos.all()
+            ]
+            
             course_data.append({
                 'id': course.id,
                 'title': course.title,
@@ -20,16 +26,30 @@ class CourseListView(APIView):
                 'duration': course.duration,
                 'price': course.price,
                 'course_photo': request.build_absolute_uri(course.course_photo.url) if course.course_photo else None,
-                'trial_video': request.build_absolute_uri(course.trial_video.url) if course.trial_video else None
+                'trial_videos': trial_videos  
             })
 
         return Response(course_data)
-
+    
     def post(self, request):
         serializer = CourseSerializer(data=request.data)
+        
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            course = serializer.save()
+            
+            # Check if video files are provided in the request
+            if 'video' not in request.FILES:
+                return Response({'error': 'Video file is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Save each uploaded video file as a TRIALVIDEO associated with the course
+            for video_file in request.FILES.getlist('video'):
+                TRIALVIDEO.objects.create(course=course, video=video_file)
+            
+            return Response({
+                'message': 'Course and trial videos added successfully',
+                'course': serializer.data
+            }, status=status.HTTP_201_CREATED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Retrieve, update, or delete a specific course
@@ -53,7 +73,8 @@ class CourseDetailView(APIView):
         course = self.get_object(course_id)
         if course is None:
             return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CourseSerializer(course, data=request.data)
+        
+        serializer = CourseSerializer(course, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -61,7 +82,35 @@ class CourseDetailView(APIView):
 
     def delete(self, request, course_id):
         course = self.get_object(course_id)
+
         if course is None:
             return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
         course.delete()
         return Response({'message': 'Course deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+class AddTrialVideoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, course_id):
+        course = COURSE.objects.get(id=course_id)
+
+        # Check if any video(key value) are present in the request
+        if 'video' not in request.FILES:
+            return Response({'error': 'Video file is required'},status=status.HTTP_400_BAD_REQUEST)
+        
+        # Save each video as a TRIALVIDEO instance
+        for video_file in request.FILES.getlist('video'):
+            TRIALVIDEO.objects.create(course=course, video=video_file)
+        
+        return Response({'message': 'Trial videos added successfully'},status=status.HTTP_201_CREATED)
+    
+class RemoveTrialVideoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, video_id):
+        try:
+            video = TRIALVIDEO.objects.get(id=video_id)
+            video.delete()
+            return Response({'message': 'Trial video deleted successfully'},status=status.HTTP_204_NO_CONTENT)
+        except TRIALVIDEO.DoesNotExist:
+            return Response({'error': 'Trial video not found'},status=status.HTTP_404_NOT_FOUND)

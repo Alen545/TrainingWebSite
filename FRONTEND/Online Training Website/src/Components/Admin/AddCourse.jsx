@@ -15,7 +15,7 @@ function AddCourse() {
     description: "",
     duration: "",
     price: "",
-    trialVideo: null,
+    trialVideo: [],
     coursePhoto: null,
   });
 
@@ -30,7 +30,11 @@ function AddCourse() {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData({ ...formData, [name]: files[0] });
+    if (name === "trialVideo") {
+      setFormData({ ...formData, [name]: Array.from(files) });// Convert the FileList to an array and store it in state
+    } else {
+      setFormData({ ...formData, [name]: files[0] });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -41,8 +45,10 @@ function AddCourse() {
     data.append("description", formData.description);
     data.append("duration", formData.duration);
     data.append("price", formData.price);
-    data.append("trial_video", formData.trialVideo);
     data.append("course_photo", formData.coursePhoto);
+    formData.trialVideo.forEach((video)=>{
+      data.append("video",video)
+    })
 
     try {
       await Axios.post("Course/course-list/", data, {
@@ -58,7 +64,7 @@ function AddCourse() {
         description: "",
         duration: "",
         price: "",
-        trialVideo: null,
+        trialVideo: [],
         coursePhoto: null,
       });
 
@@ -72,7 +78,7 @@ function AddCourse() {
 
   return (
     <div className="flex min-h-screen">
-      <div className="fixed top-4 left-4 z-50 md:hidden">
+      <div className="left-4 z-50 md:hidden">
         <Hamburger
           toggled={isSidebarOpen}
           toggle={setIsSidebarOpen}
@@ -142,13 +148,14 @@ function AddCourse() {
               </div>
             </div>
             <div>
-              <label className="block text-gray-700">Trial Video</label>
+              <label className="block text-gray-700">Trial Videos</label>
               <input
                 type="file"
                 name="trialVideo"
                 onChange={handleFileChange}
                 className="w-full border border-gray-300 rounded p-2"
                 accept="video/*"
+                multiple
               />
             </div>
             <div>

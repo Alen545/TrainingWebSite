@@ -71,7 +71,7 @@ function UserRequest() {
 
   return (
     <div className="flex min-h-screen">
-      <div className="fixed top-4 left-4 z-50 md:hidden">
+      <div className="left-4 z-50 md:hidden">
         <Hamburger
           toggled={isSidebarOpen}
           toggle={setIsSidebarOpen}
