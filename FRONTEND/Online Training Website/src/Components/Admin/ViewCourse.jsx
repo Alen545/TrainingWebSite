@@ -86,7 +86,7 @@ function ViewCourse() {
                 <tr key={course.id}>
                   <td className="px-4 py-2 border">{course.title}</td>
                   <td className="px-4 py-2 border">{course.description}</td>
-                  <td className="px-4 py-2 border">{course.duration}</td>
+                  <td className="px-4 py-2 border">{course.duration} Months</td>
                   <td className="px-4 py-2 border">₹{course.price}</td>
                   <td className="px-4 py-2 border">
                     {course.course_photo ? (
@@ -101,18 +101,17 @@ function ViewCourse() {
                   </td>
                   <td className="px-4 py-2 border">
                     {course.trial_videos ? (
-                      <a
-                        href={course.trial_videos}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => navigate(`/trialVideo/${course.id}/`)}
                         className="text-blue-500 underline"
                       >
                         View Video
-                      </a>
+                      </button>
                     ) : (
                       "No Video"
                     )}
                   </td>
+
                   <td className="px-4 py-2 border text-center">
                     <button
                       onClick={() => handleDelete(course.id)}
