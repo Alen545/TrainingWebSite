@@ -104,31 +104,36 @@ function TrialVideo() {
         <AdminSideBar />
       </div>
 
-      <div className="flex flex-col justify-center items-center w-full py-8 px-4 ml-64">
-        <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800">{courseTitle}</h1>
+      <div className="flex flex-col items-center w-full py-8 px-4 ml-64">
+        <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800">
+          {courseTitle}
+        </h1>
 
-        <div className="w-full overflow-y-auto max-h-screen p-4">
+        <div className="w-full overflow-y-auto max-h-screen p-4 flex justify-center">
           {trialVideos && trialVideos.length > 0 ? (
-            trialVideos.map((video, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between mb-8 w-[5cm] mx-auto"
-              >
-                <div className="flex-shrink-0 w-[5cm] h-[5cm]">
-                  <video controls className="w-full h-full rounded-lg shadow-md">
-                    <source src={`${BASE_URL}${video.video}`} type="video/mp4" />
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {trialVideos.map((video, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col items-center w-[10cm] h-[10cm] bg-white shadow-md rounded-lg overflow-hidden p-4"
+                >
+                  <video controls className="w-full h-[7cm] rounded-md mb-2">
+                    <source
+                      src={`${BASE_URL}${video.video}`}
+                      type="video/mp4"
+                    />
                     Your browser does not support the video tag.
                   </video>
-                </div>
 
-                <button
-                  onClick={() => handleRemoveVideo(video.id)}
-                  className="bg-red-500 text-white px-6 py-3 rounded-md text-lg transition duration-300 hover:bg-red-600 ml-4"
-                >
-                  Remove Video
-                </button>
-              </div>
-            ))
+                  <button
+                    onClick={() => handleRemoveVideo(video.id)}
+                    className="bg-red-500 text-white px-4 py-1 rounded-md text-sm transition duration-300 hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
           ) : (
             <p className="text-xl text-gray-500">No Trial Video Available</p>
           )}
@@ -149,9 +154,8 @@ function TrialVideo() {
             </button>
           </div>
         </div>
+        <ToastContainer />
       </div>
-
-      <ToastContainer />
     </div>
   );
 }
