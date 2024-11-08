@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import BASE_URL from "../../Config";
 
 function ViewCourse() {
   const [courses, setCourses] = useState([]);
@@ -91,7 +92,7 @@ function ViewCourse() {
                   <td className="px-4 py-2 border">
                     {course.course_photo ? (
                       <img
-                        src={course.course_photo}
+                        src={`${BASE_URL}${course.course_photo}`}
                         alt="Course Photo"
                         className="h-16 w-16 object-cover"
                       />

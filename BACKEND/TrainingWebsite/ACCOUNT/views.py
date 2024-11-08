@@ -113,6 +113,7 @@ class GetUserData(APIView):
                 'name' : f'{user.first_name} {user.last_name}',
                 'email' : user.email,
                 'phone' : user.phone,
+                'is_active' : user.is_active,
                 'profileImage' : request.build_absolute_uri(user.profile_img.url) if user.profile_img else None
             })
         return Response(user_data)

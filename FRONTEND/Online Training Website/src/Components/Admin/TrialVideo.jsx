@@ -73,7 +73,7 @@ function TrialVideo() {
 
   const handleRemoveVideo = async (videoId) => {
     try {
-      await Axios.delete(`Course/remove-trial-video/${videoId}`, {
+      await Axios.delete(`Course/remove-trial-video/${videoId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -104,18 +104,18 @@ function TrialVideo() {
         <AdminSideBar />
       </div>
 
-      <div className="flex flex-col items-center w-full py-8 px-4 ml-64">
+      <div className="h-[100vh] overflow-auto items-center w-full">
         <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800">
           {courseTitle}
         </h1>
 
-        <div className="w-full overflow-y-auto max-h-screen p-4 flex justify-center">
+        <div className="w-full p-4">
           {trialVideos && trialVideos.length > 0 ? (
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div>
               {trialVideos.map((video, index) => (
                 <div
                   key={index}
-                  className="flex flex-col items-center w-[10cm] h-[10cm] bg-white shadow-md rounded-lg overflow-hidden p-4"
+                  className="flex flex-col mb-20 m-auto z-2 items-center w-[8cm] h-[9cm]  bg-white shadow-md rounded-lg overflow-hidden p-4"
                 >
                   <video controls className="w-full h-[7cm] rounded-md mb-2">
                     <source
@@ -138,7 +138,7 @@ function TrialVideo() {
             <p className="text-xl text-gray-500">No Trial Video Available</p>
           )}
 
-          <div className="mt-8 w-full max-w-lg">
+          <div className="mt-8 m-auto w-full max-w-lg">
             <input
               type="file"
               accept="video/*"

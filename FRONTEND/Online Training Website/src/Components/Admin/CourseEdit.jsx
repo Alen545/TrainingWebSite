@@ -14,7 +14,7 @@ function CourseEdit() {
     duration: "",
     price: "",
     course_photo: null,
-    trial_video: null,
+    // trial_video: null,
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const token = Cookies.get("authToken");
@@ -55,7 +55,7 @@ function CourseEdit() {
     formData.append("price", course.price);
     if (course.course_photo)
       formData.append("course_photo", course.course_photo);
-    if (course.trial_video) formData.append("trial_video", course.trial_video);
+    // if (course.trial_video) formData.append("trial_video", course.trial_video);
 
     try {
       await Axios.put(`Course/course-detail/${courseId}/`, formData, {
@@ -148,7 +148,7 @@ function CourseEdit() {
               className="w-full p-2 border rounded"
             />
           </div>
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label className="block text-gray-700">Trial Video</label>
             <input
               type="file"
@@ -156,7 +156,7 @@ function CourseEdit() {
               onChange={handleChange}
               className="w-full p-2 border rounded"
             />
-          </div>
+          </div> */}
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

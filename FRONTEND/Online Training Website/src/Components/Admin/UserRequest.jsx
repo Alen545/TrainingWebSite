@@ -105,7 +105,7 @@ function UserRequest() {
                 <tr
                   key={user.id}
                   className={`hover:bg-gray-100 ${
-                    acceptedUsers.has(user.id) ? "bg-gray-400" : "bg-white"
+                    user.is_active  ? "bg-gray-400" : "bg-white"
                   }`}
                 >
                   <td className="p-4 border-b text-center">

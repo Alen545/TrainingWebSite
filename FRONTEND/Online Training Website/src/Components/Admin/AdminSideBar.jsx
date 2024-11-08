@@ -11,7 +11,7 @@ function AdminSideBar() {
   };
 
   return (
-    <div className="h-screen w-64 bg-gray-800 text-white fixed top-0 left-0 flex flex-col">
+    <div className="h-screen w-64 bg-gray-800 text-white fixed top-0 left-0 z-3 flex flex-col">
       <div className="p-4 border-b border-gray-700">
         <h3
           onClick={() => navigate("/adminHomePage")}

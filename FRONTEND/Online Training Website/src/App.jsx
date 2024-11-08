@@ -12,6 +12,7 @@ import CourseEdit from "./Components/Admin/CourseEdit";
 import TrialVideo from "./Components/Admin/TrialVideo";
 
 import UserHomePage from "./Components/User/UserHomePage";
+import UserCourseDetails from "./Components/User/UserCourseDetails";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/trialVideo/:courseId/" element={<TrialVideo />} />
 
           <Route path="/userHomePage" element={<UserHomePage />} />
+          <Route path="/userCourseDetails/:courseId/" element={<UserCourseDetails />} />
         </Routes>
       </BrowserRouter>
     </>
