@@ -1,4 +1,5 @@
 from django.db import models
+from ACCOUNT.models import USER
 
 # Create your models here.
 class COURSE(models.Model):
@@ -24,3 +25,23 @@ class TRIALVIDEO(models.Model):
         return f"Video for {self.course.title}"
 
 
+class COURSEINTEREST(models.Model):
+    user = models.ForeignKey(USER, on_delete=models.CASCADE)
+    course = models.ForeignKey(COURSE, on_delete=models.CASCADE)
+    date_of_interest = models.DateTimeField(auto_now_add=True)
+    interested = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.course.title} - Interest"
+    
+class COURSEAPPLICATION(models.Model):
+    user = models.ForeignKey(USER, on_delete=models.CASCADE)
+    course = models.ForeignKey(COURSE, on_delete=models.CASCADE)
+    date_of_application = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, default='Applied')  
+    hr_contacted = models.BooleanField(default=False)  
+    def __str__(self):
+        return f"{self.user.username} - {self.course.title} - Application Status: {self.status}"
+
+
+   
