@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Hamburger from "hamburger-react";
 import { useNavigate } from "react-router-dom";
 
-function UserNavBar() {
+function UserNavBar({ searchQuery, setSearchQuery }) {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -20,17 +20,28 @@ function UserNavBar() {
           <input
             type="text"
             placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full p-2 rounded-md border border-gray-300 text-black"
           />
         </div>
 
         <nav className="hidden md:flex space-x-4">
-          <button href="#home" className="hover:underline">
+          <button
+            className="w-full text-left hover:bg-blue-600 p-2 rounded"
+            onClick={() => navigate("/userResetPassword")}
+          >
+            Reset Password
+          </button>
+          <button
+            className="w-full text-left hover:bg-green-600 p-2 rounded"
+            onClick={() => navigate("/userProfile")}
+          >
             Profile
           </button>
           <button
-            onClick={() => navigate("/userLogin")}
             className="w-full text-left hover:bg-red-600 p-2 rounded"
+            onClick={() => navigate("/userLogin")}
           >
             Logout
           </button>
@@ -50,14 +61,28 @@ function UserNavBar() {
           <input
             type="text"
             placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full p-2 rounded-md border border-gray-300 text-black mb-2"
           />
-          <a href="#home" className="block hover:underline">
+          <button
+            className="w-full text-left hover:bg-blue-600 p-2 rounded"
+            onClick={() => navigate("/userResetPassword")}
+          >
+            Reset Password
+          </button>
+          <button
+            className="w-full text-left hover:bg-green-600 p-2 rounded"
+            onClick={() => navigate("/userProfile")}
+          >
             Profile
-          </a>
-          <a href="/userLogin" className="block hover:underline">
-            LogOut
-          </a>
+          </button>
+          <button
+            className="w-full text-left hover:bg-red-600 p-2 rounded"
+            onClick={() => navigate("/userLogin")}
+          >
+            Logout
+          </button>
         </nav>
       )}
     </div>

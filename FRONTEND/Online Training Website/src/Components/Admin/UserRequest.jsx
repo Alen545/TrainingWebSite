@@ -5,6 +5,7 @@ import Axios from "../../Axios";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import BASE_URL from "../../Config";
 
 function UserRequest() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -105,17 +106,17 @@ function UserRequest() {
                 <tr
                   key={user.id}
                   className={`hover:bg-gray-100 ${
-                    user.is_active  ? "bg-gray-400" : "bg-white"
+                    user.is_active ? "bg-gray-400" : "bg-white"
                   }`}
                 >
                   <td className="p-4 border-b text-center">
                     <img
-                      src={user.profileImage}
+                      src={`${BASE_URL}${user.profile_img}`}
                       alt={user.name}
                       className="w-10 h-10 rounded-full"
                     />
                   </td>
-                  <td className="p-4 border-b text-center">{user.name}</td>
+                  <td className="p-4 border-b text-center">{`${user.first_name}${user.last_name}`}</td>
                   <td className="p-4 border-b text-center">{user.email}</td>
                   <td className="p-4 border-b text-center">{user.phone}</td>
                   <td className="p-4 border-b text-center space-x-2">

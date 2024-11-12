@@ -104,20 +104,16 @@ class GetUserData(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        users = USER.objects.filter(is_staff = False)
-        
-        user_data = []
-        for user in users:
-            user_data.append({
-                'id' : user.id,
-                'name' : f'{user.first_name} {user.last_name}',
-                'email' : user.email,
-                'phone' : user.phone,
-                'is_active' : user.is_active,
-                'profileImage' : request.build_absolute_uri(user.profile_img.url) if user.profile_img else None
-            })
-        return Response(user_data)
+        user = request.user
 
+        if user.is_staff:
+            users = USER.objects.filter(is_staff=False)
+            serializer = UserRegistrationSerializer(users, many=True)
+            return Response(serializer.data)
+        
+        serializer = UserRegistrationSerializer(user)
+        return Response(serializer.data)
+        
 #Accept/Decline User
 class UserActionView(APIView):
     permission_classes = [IsAuthenticated]
@@ -154,3 +150,29 @@ class UserActionView(APIView):
 
         except USER.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# Edit and Delete the user profile
+class ProfileOperations(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        data = request.data
+        profile_img = request.FILES.get('profile_img', None)
+
+        serializer = UserRegistrationSerializer(user, data=data, partial=True)
+        if serializer.is_valid():
+            if profile_img:
+                user.profile_img = profile_img
+                user.save()
+            serializer.save()
+            return Response({"message": "Profile updated successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self,request):
+        try:
+            user = request.user
+            user.delete()
+            return Response({'message':'Your account has been deleted successfully.'},status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error':'There was an error deleting your account.'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)

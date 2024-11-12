@@ -13,6 +13,9 @@ import TrialVideo from "./Components/Admin/TrialVideo";
 
 import UserHomePage from "./Components/User/UserHomePage";
 import UserCourseDetails from "./Components/User/UserCourseDetails";
+import UserProfile from "./Components/User/UserProfile";
+import UserEditProfile from "./Components/User/UserEditProfile";
+import UserResetPassword from "./Components/User/UserResetPassword";
 
 function App() {
   return (
@@ -31,7 +34,13 @@ function App() {
           <Route path="/trialVideo/:courseId/" element={<TrialVideo />} />
 
           <Route path="/userHomePage" element={<UserHomePage />} />
-          <Route path="/userCourseDetails/:courseId/" element={<UserCourseDetails />} />
+          <Route
+            path="/userCourseDetails/:courseId/"
+            element={<UserCourseDetails />}
+          />
+          <Route path="/userProfile" element={<UserProfile />} />
+          <Route path="/userEditProfile" element={<UserEditProfile />} />
+          <Route path="/userResetPassword" element={<UserResetPassword />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -28,7 +28,38 @@ function UserCourseDetails() {
         console.log("Error fetching course details:", error);
       }
     };
+
+    const fetchInterestStatus = async () => {
+      try {
+        const response = await Axios.get("Course/interest/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: { course: courseId },
+        });
+        setInterested(response.data.interested);
+      } catch (error) {
+        console.log("Error checking interest status:", error);
+      }
+    };
+
+    const fetchApplicationStatus = async () => {
+      try {
+        const response = await Axios.get("Course/apply/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: { course: courseId },
+        });
+        setApplied(response.data.applied);
+      } catch (error) {
+        console.log("Error checking application status:", error);
+      }
+    };
+
     fetchCourseDetails();
+    fetchInterestStatus();
+    fetchApplicationStatus();
   }, [courseId]);
 
   const handleInterest = async () => {
