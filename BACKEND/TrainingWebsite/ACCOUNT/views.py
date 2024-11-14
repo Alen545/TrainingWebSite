@@ -176,3 +176,37 @@ class ProfileOperations(APIView):
             return Response({'message':'Your account has been deleted successfully.'},status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error':'There was an error deleting your account.'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ResetPasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        oldpass_entered = request.data.get('oldPassword')
+        user = request.user
+
+        if user.check_password(oldpass_entered):
+            return Response({'message': 'Password is verified'}, status=200)
+        else:
+            return Response({'message': 'Invalid Password'}, status=400)
+
+    def put(self, request):
+        newpass_entered = request.data.get('newPassword')
+        user_id = request.user.id  
+
+        try:
+        
+            user = USER.objects.get(id=user_id)
+            user.set_password(newpass_entered)
+            user.save()
+
+            send_mail(
+                'Password Change Notification',
+                'Your password has been successfully changed.',
+                'alengeorge1999@gmail.com',  
+                [user.email],  
+                fail_silently=False,
+            )
+
+            return Response({'message': 'Password updated successfully'}, status=200)
+        except USER.DoesNotExist:
+            return Response({'error': 'User does not exist'}, status=400)

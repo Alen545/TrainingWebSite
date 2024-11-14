@@ -1,71 +1,96 @@
 import React, { useState } from "react";
-import Axios from '../../Axios'
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { TiTick } from "react-icons/ti";
-import { ImCross } from "react-icons/im";
+import Axios from "../../Axios";
 import UserNavBar from "./UserNavBar";
 import UserFooter from "./UserFooter";
+import { TiTick } from "react-icons/ti";
+import { ImCross } from "react-icons/im";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 
 function UserResetPassword() {
-  const [formData, setFormData] = useState({
+  const [formState, setFormState] = useState({
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
+    oldPasswordValid: null,
+    passwordCriteriaMet: false,
+    passwordsMatch: null,
   });
 
-  const [validation, setValidation] = useState({
-    isOldPasswordValid: null,
-    isNewPasswordValid: null,
-    doPasswordsMatch: null,
-  });
-
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
   const token = Cookies.get("authToken");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const validatePassword = (password) => {
+    const criteria =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    setFormState((prevState) => ({
+      ...prevState,
+      passwordCriteriaMet: criteria.test(password),
+    }));
+  };
 
-    if (name === "newPassword") {
-      setValidation({
-        ...validation,
-        isNewPasswordValid: passwordRegex.test(value),
-        doPasswordsMatch: value === formData.confirmPassword,
-      });
-    }
+  const handleNewPasswordChange = (e) => {
+    const password = e.target.value;
+    setFormState((prevState) => ({
+      ...prevState,
+      newPassword: password,
+    }));
+    validatePassword(password);
+    setFormState((prevState) => ({
+      ...prevState,
+      passwordsMatch: password === formState.confirmPassword,
+    }));
+  };
 
-    if (name === "confirmPassword") {
-      setValidation({
-        ...validation,
-        doPasswordsMatch: value === formData.newPassword,
-      });
-    }
+  const handleConfirmPasswordChange = (e) => {
+    const confirmPwd = e.target.value;
+    setFormState((prevState) => ({
+      ...prevState,
+      confirmPassword: confirmPwd,
+    }));
+    setFormState((prevState) => ({
+      ...prevState,
+      passwordsMatch: formState.newPassword === confirmPwd,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validation.isNewPasswordValid) {
-      toast.error(
-        "New password must be at least 8 characters long, contain letters, numbers, and symbols."
-      );
-      return;
+    if (
+      formState.oldPasswordValid &&
+      formState.passwordCriteriaMet &&
+      formState.passwordsMatch
+    ) {
+      try {
+        await Axios.put(
+          "Account/reset-password/",
+          {
+            oldPassword: formState.oldPassword,
+            newPassword: formState.newPassword,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        toast.success("Password reset successfully!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } catch (error) {
+        toast.error("Failed to reset password!");
+      }
+    } else {
+      toast.error("Please ensure all criteria are met!");
     }
+  };
 
-    if (!validation.doPasswordsMatch) {
-      toast.error("New passwords do not match!");
-      return;
-    }
-
+  const checkOldPassword = async () => {
     try {
       const response = await Axios.post(
         "Account/reset-password/",
-        {
-          oldPassword: formData.oldPassword,
-          newPassword: formData.newPassword,
-        },
+        { oldPassword: formState.oldPassword },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -73,101 +98,112 @@ function UserResetPassword() {
         }
       );
 
-      if (response.status === 200) {
-        toast.success("Password reset successfully!");
-        setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
-        setValidation({ isOldPasswordValid: null, isNewPasswordValid: null, doPasswordsMatch: null });
+      if (
+        response.status === 200 &&
+        response.data.message === "Password is verified"
+      ) {
+        setFormState((prevState) => ({
+          ...prevState,
+          oldPasswordValid: true,
+        }));
+      } else {
+        setFormState((prevState) => ({
+          ...prevState,
+          oldPasswordValid: false,
+        }));
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.error || "An error occurred during reset."
-      );
+      setFormState((prevState) => ({
+        ...prevState,
+        oldPasswordValid: false,
+      }));
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header>
-        <UserNavBar />
-      </header>
-      <main className="flex-grow p-4 sm:p-6 lg:p-8">
-        <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center">
-          Reset Password
-        </h2>
+    <div className="min-h-screen flex flex-col justify-between">
+      <UserNavBar />
+      <div className="flex-grow flex justify-center items-center bg-gray-100 p-6">
         <form
           onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded px-6 sm:px-8 pt-6 pb-8 max-w-lg mx-auto"
+          className="bg-white p-8 rounded shadow-md w-full max-w-md"
         >
+          <h2 className="text-2xl font-bold mb-6">Reset Password</h2>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="oldPassword" className="block text-gray-700">
               Old Password
             </label>
             <input
               type="password"
-              name="oldPassword"
-              value={formData.oldPassword}
-              onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
+              id="oldPassword"
+              value={formState.oldPassword}
+              onChange={(e) =>
+                setFormState({ ...formState, oldPassword: e.target.value })
+              }
+              onBlur={checkOldPassword}
+              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
+            {formState.oldPasswordValid !== null && (
+              <span className="inline-block mt-2">
+                {formState.oldPasswordValid ? (
+                  <TiTick className="text-green-500" />
+                ) : (
+                  <ImCross className="text-red-500" />
+                )}
+              </span>
+            )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="newPassword" className="block text-gray-700">
               New Password
             </label>
-            <div className="flex items-center">
-              <input
-                type="password"
-                name="newPassword"
-                value={formData.newPassword}
-                onChange={handleChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-              {validation.isNewPasswordValid === true ? (
-                <TiTick className="text-green-500 ml-2" size={20} />
-              ) : validation.isNewPasswordValid === false ? (
-                <ImCross className="text-red-500 ml-2" size={20} />
-              ) : null}
-            </div>
-            <p className="text-sm text-gray-600 mt-1">
-              Password must be at least 8 characters, include letters, numbers,
-              and symbols.
+            <input
+              type="password"
+              id="newPassword"
+              value={formState.newPassword}
+              onChange={handleNewPasswordChange}
+              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+            <p className="text-sm text-gray-500 mt-2">
+              Password must be at least 8 characters long, contain at least one
+              number, and one special character.
             </p>
+            {formState.passwordCriteriaMet ? (
+              <TiTick className="text-green-500" />
+            ) : (
+              <ImCross className="text-red-500" />
+            )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="confirmPassword" className="block text-gray-700">
               Confirm New Password
             </label>
-            <div className="flex items-center">
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-              {validation.doPasswordsMatch === true ? (
-                <TiTick className="text-green-500 ml-2" size={20} />
-              ) : validation.doPasswordsMatch === false ? (
-                <ImCross className="text-red-500 ml-2" size={20} />
-              ) : null}
-            </div>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={formState.confirmPassword}
+              onChange={handleConfirmPasswordChange}
+              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+            {formState.passwordsMatch !== null && (
+              <span className="inline-block mt-2">
+                {formState.passwordsMatch ? (
+                  <TiTick className="text-green-500" />
+                ) : (
+                  <ImCross className="text-red-500" />
+                )}
+              </span>
+            )}
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto"
-            >
-              Reset Password
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          >
+            Reset Password
+          </button>
         </form>
-      </main>
-      <footer className="mt-auto">
-        <UserFooter />
-      </footer>
+      </div>
+      <UserFooter />
       <ToastContainer />
     </div>
   );

@@ -16,7 +16,8 @@ import UserCourseDetails from "./Components/User/UserCourseDetails";
 import UserProfile from "./Components/User/UserProfile";
 import UserEditProfile from "./Components/User/UserEditProfile";
 import UserResetPassword from "./Components/User/UserResetPassword";
-
+import AboutUs from "./Components/User/AboutUs";
+import ContactUs from "./Components/User/ContactUs";
 function App() {
   return (
     <>
@@ -41,6 +42,8 @@ function App() {
           <Route path="/userProfile" element={<UserProfile />} />
           <Route path="/userEditProfile" element={<UserEditProfile />} />
           <Route path="/userResetPassword" element={<UserResetPassword />} />
+          <Route path="/aboutUs" element={<AboutUs />} />
+          <Route path="/contactUs" element={<ContactUs />} />
         </Routes>
       </BrowserRouter>
     </>
